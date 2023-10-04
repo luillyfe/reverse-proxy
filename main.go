@@ -4,7 +4,7 @@ import "luillyfe.com/reverse-proxy/http"
 
 func main() {
 	// Collecting a list of backend servers.
-	servers := []string{
+	endpoints := []string{
 		// By not specifying an IP address before the colon, the server will listen
 		// on every IP address associated with your computer
 		":8081",
@@ -14,7 +14,7 @@ func main() {
 
 	// Create a Load Balancer
 	loadBalancer := &http.ReverseProxy{
-		BackendService: http.BackendService{Servers: servers},
+		BackendService: http.BackendService{Backend: endpoints},
 	}
 
 	// Run the Load Balancer

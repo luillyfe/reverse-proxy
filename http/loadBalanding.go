@@ -7,8 +7,9 @@ import (
 	"net/http/httputil"
 )
 
+// to ease implementation a backend service is just a collections of http servers
 type BackendService struct {
-	Servers []string
+	Backend []string
 }
 
 type ReverseProxy struct {
@@ -21,14 +22,14 @@ func (rp *ReverseProxy) Run() {
 
 	// Create a handler that forwards requests to the reverse proxy.
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Select a backend service
-		targetBackendService := rp.selectService()
+		// Select a target http service
+		targetService := rp.selectService()
 
 		// Set the target backend service.
 		proxy.Director = func(r *http.Request) {
 			// the Director is just function that modifies the original incoming request
 			r.URL.Scheme = "http"
-			r.URL.Host = targetBackendService
+			r.URL.Host = targetService
 		}
 
 		// Serve the request
@@ -41,5 +42,5 @@ func (rp *ReverseProxy) Run() {
 
 // Load balancing algorithm
 func (rp *ReverseProxy) selectService() string {
-	return rp.BackendService.Servers[rand.Intn(3)]
+	return rp.BackendService.Backend[rand.Intn(3)]
 }
