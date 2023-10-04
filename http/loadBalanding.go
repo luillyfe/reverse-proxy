@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"log"
@@ -7,23 +7,22 @@ import (
 	"net/http/httputil"
 )
 
-func main() {
-	// Create a list of backend servers.
-	servers := []string{
-		// By not specifying an IP address before the colon, the server will listen
-		// on every IP address associated with your computer
-		":8081",
-		":8082",
-		":8083",
-	}
+type BackendService struct {
+	Servers []string
+}
 
+type ReverseProxy struct {
+	BackendService BackendService
+}
+
+func (rp *ReverseProxy) Run() {
 	// Create a reverse proxy.
 	proxy := httputil.NewSingleHostReverseProxy(nil)
 
 	// Create a handler that forwards requests to the reverse proxy.
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Select a backend service
-		targetBackendService := servers[rand.Intn(3)]
+		targetBackendService := rp.selectService()
 
 		// Set the target backend service.
 		proxy.Director = func(r *http.Request) {
@@ -38,4 +37,9 @@ func main() {
 
 	// Start the load balancer.
 	log.Fatal(http.ListenAndServe(":8080", handler))
+}
+
+// Load balancing algorithm
+func (rp *ReverseProxy) selectService() string {
+	return rp.BackendService.Servers[rand.Intn(3)]
 }
