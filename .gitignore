@@ -1,3 +1,10 @@
-/server1.go
-/server2.go
-/server3.go
+# Ignore compiled binaries
+*.exe
+*.out
+*.mod
+
+# Ignore Golang test files
+*_test.go
+
+# Ignore vendor directory
+vendor/
